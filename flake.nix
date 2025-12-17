@@ -21,6 +21,8 @@
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = [
           myPython
+          pkgs.python3
+          pkgs.git
         ];
 
         # Optional: Umgebungsvariablen für bessere Kompatibilität
