@@ -20,6 +20,23 @@
           highlight = { enable = true },
           indent = { enable = true },
         })
+
+      vim.opt.clipboard = "unnamedplus"
+
+        if vim.fn.has("wsl") == 1 or os.getenv("NixOS") ~= nil then
+          vim.g.clipboard = {
+            name = 'WslClipboard',
+            copy = {
+              ['+'] = 'clip.exe',
+              ['*'] = 'clip.exe',
+            },
+            paste = {
+              ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+              ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+            },
+            cache_enabled = 0,
+          }
+        end
       '';
 
       ninjinBase = pkgs.neovim.override {
@@ -28,7 +45,7 @@
           set number
           set termguicolors
 
-	  " --- COLORSCHEME SETTINGS ---
+          " --- COLORSCHEME SETTINGS ---
           set background=dark
           colorscheme gruvbox
 
@@ -36,7 +53,7 @@
           '';
       packages.ninjinPlugins = with pkgs.vimPlugins; {
         start = [
-	  gruvbox-nvim
+          gruvbox-nvim
           (nvim-treesitter.withPlugins (p: [p.python p.lua p.nix p.vim p.vimdoc ]))
       ];
     };
@@ -60,7 +77,7 @@
         shellHook = ''
           echo "🎮 Willkommen in der Pygame-Entwicklungsumgebung!"
           echo "Python Version: $(python --version)"
-          
+
           # Manchmal braucht Pygame Hilfe, um Bibliotheken auf NixOS zu finden
           export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
             pkgs.xorg.libX11
@@ -78,13 +95,13 @@
               echo ""
               echo "⚠️  Git ist für dieses Repo noch nicht konfiguriert."
               echo "Bitte gib deine Daten ein (werden nur lokal für dieses Projekt gespeichert):"
-              
+
               read -p "Dein Name: " gname
               git config user.name "$gname"
-              
+
               read -p "Deine Email: " gmail
               git config user.email "$gmail"
-              
+
               echo "✅ Git konfiguriert als: $gname <$gmail>"
               echo ""
             fi
