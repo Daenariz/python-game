@@ -23,6 +23,7 @@
           myPython
           pkgs.python3
           pkgs.git
+          pkgs.neovim
         ];
 
         # Optional: Umgebungsvariablen für bessere Kompatibilität
