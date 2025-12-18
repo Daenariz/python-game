@@ -7,23 +7,52 @@
 
   outputs = { self, nixpkgs }:
     let
-      # Wir gehen hier von 64-bit Systemen aus (Standard für WSL und Desktop)
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
 
-      # Hier definieren wir unser Python inklusive Pakete
       myPython = pkgs.python3.withPackages (ps: with ps; [
         pygame
-        # Hier könntet ihr später mehr hinzufügen, z.B. numpy
       ]);
 
+      ninjinLuaConfig = pkgs.writeText "config.lua" ''
+        local configs = require("nvim-treesitter.configs")
+        configs.setup({
+          highlight = { enable = true },
+          indent = { enable = true },
+        })
+      '';
+
+      ninjinBase = pkgs.neovim.override {
+      configure = {
+      customRC = ''
+          set number
+          set termguicolors
+
+	  " --- COLORSCHEME SETTINGS ---
+          set background=dark
+          colorscheme gruvbox
+
+          luafile ${ninjinLuaConfig}
+          '';
+      packages.ninjinPlugins = with pkgs.vimPlugins; {
+        start = [
+	  gruvbox-nvim
+          (nvim-treesitter.withPlugins (p: [p.python p.lua p.nix p.vim p.vimdoc ]))
+      ];
+    };
+    };
+    };
+
+      ninjinNeovim = pkgs.writeShellScriptBin "nv" ''
+        ${ninjinBase}/bin/nvim "$@"
+        '';
     in {
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = [
           myPython
           pkgs.python3
           pkgs.git
-          pkgs.neovim
+          ninjinNeovim
         ];
 
         # Optional: Umgebungsvariablen für bessere Kompatibilität
