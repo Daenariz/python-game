@@ -41,6 +41,24 @@
             pkgs.libGL
             pkgs.libGLU
           ]}:$LD_LIBRARY_PATH
+           # --- GIT CONFIG AUTO-SETUP ---
+          # Prüft, ob wir in einem Git Repo sind und ob user.name fehlt
+          if [ -d .git ]; then
+            if [ -z "$(git config user.name)" ]; then
+              echo ""
+              echo "⚠️  Git ist für dieses Repo noch nicht konfiguriert."
+              echo "Bitte gib deine Daten ein (werden nur lokal für dieses Projekt gespeichert):"
+              
+              read -p "Dein Name: " gname
+              git config user.name "$gname"
+              
+              read -p "Deine Email: " gmail
+              git config user.email "$gmail"
+              
+              echo "✅ Git konfiguriert als: $gname <$gmail>"
+              echo ""
+            fi
+          fi
         '';
       };
     };
